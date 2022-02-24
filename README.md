@@ -1,0 +1,1 @@
+# ansible-gcpartner-anthos-baremetal
