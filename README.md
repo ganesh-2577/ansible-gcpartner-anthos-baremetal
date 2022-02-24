@@ -1,1 +1,1 @@
-# ansible-gcpartner-anthos-baremetal
+# Anthos on Baremetal Ansible Playbook
