@@ -1,0 +1,67 @@
+---
+- name: Install Google Cloud SDK pre-reqs
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg:
+    - apt-transport-https
+    - ca-certificates
+    - gnupg
+
+- name: Add Google Cloud Apt signing key to a specific keyring file
+  ansible.builtin.apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    keyring: /usr/share/keyrings/cloud.google.gpg
+
+- name: Add Google Cloud repository into sources list
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt
+      cloud-sdk main
+    state: present
+
+- name: Install Google Cloud SDK
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    pkg:
+    - google-cloud-sdk
+
+# docker install
+- name: Install Docker prerequisites
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg:
+    - apt-transport-https
+    - ca-certificates
+    - gnupg
+    - curl
+    - software-properties-common
+
+- name: Add an Apt signing key, uses whichever key is at the URL
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add docker repository into sources list
+  ansible.builtin.apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: Install docker-ce and docker-cli
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg:
+    - docker-ce={{ ubuntu_docker_ce_version }}
+    - docker-ce-cli={{ ubuntu_docker_ce_cli_version }}
+
+- name: Add ubuntu user to docker
+  ansible.builtin.user:
+    name: '{{ username }}'
+    groups:
+    - docker
+    append: yes
+
+- name: Download kubectl
+  get_url:
+    url: https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/kubectl
+    mode: '0755'

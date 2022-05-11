@@ -1,0 +1,16 @@
+---
+- name: Disable SELinux
+  ansible.posix.selinux:
+    state: disabled
+
+# install firewalld, then stop
+- name: Install firewalld
+  ansible.builtin.yum:
+    name: firewalld
+    state: present
+
+- name: Stop and disable firewalld service
+  ansible.builtin.service:
+    name: firewalld
+    state: stopped
+    enabled: false

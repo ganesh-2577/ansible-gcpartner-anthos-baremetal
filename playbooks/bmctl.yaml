@@ -1,0 +1,4 @@
+---
+- hosts: bootstrap_node
+  roles:
+    - bmctl

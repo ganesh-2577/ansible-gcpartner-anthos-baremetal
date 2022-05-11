@@ -1,0 +1,88 @@
+- name: Set facts cp_vip
+  set_fact:
+    cp_vip: "{{ private_subnet | ansible.utils.nthhost('-2') }}"
+    ingress_vip: "{{ private_subnet | ansible.utils.nthhost('-3') }}"
+    lb_range_start: "{{ private_subnet | ansible.utils.nthhost('-14') }}"
+
+- name: bmctl key
+  set_fact:
+    bmctl_key: "{{ lookup('file', '{{ home_path }}/bootstrap/gcp_keys/bmctl.json')\
+      \ | from_json }}"
+
+- name: Import RedHat tasks
+  import_tasks: rhel.yaml
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+
+- name: Import Debian/ubuntu tasks
+  import_tasks: ubuntu.yaml
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Download bmctl
+  ansible.builtin.shell:
+    chdir: '{{ home_path }}/bootstrap'
+    cmd: gcloud auth activate-service-account --key-file={{ home_path }}/bootstrap/gcp_keys/gcr.json
+      && gsutil cp gs://anthos-baremetal-release/bmctl/{{ bmctl_version }}/linux-amd64/bmctl
+      .
+    creates: '{{ home_path }}/bootstrap/bmctl'
+
+- name: Download kubectl
+  get_url:
+    url: https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/kubectl
+    mode: '0755'
+
+- name: Enable service docker
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Change bmctl permissions
+  ansible.builtin.file:
+    path: '{{ home_path }}/bootstrap/bmctl'
+    mode: '0755'
+
+- name: Create cluster config
+  ansible.builtin.shell:
+    chdir: '{{ home_path }}/bootstrap'
+    cmd: '{{ home_path }}/bootstrap/bmctl create config -c {{ cluster_name }} --project-id={{
+      gcp_project_id }}'
+    creates: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name
+      }}.yaml'
+  environment:
+    GOOGLE_APPLICATION_CREDENTIALS: '{{ home_path }}/bootstrap/gcp_keys/bmctl.json'
+
+- name: Replace cluster config file
+  template:
+    src: bmctl.conf.j2
+    dest: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name
+      }}.yaml'
+    mode: '0644'
+
+- name: Create cluster
+  ansible.builtin.shell:
+    chdir: '{{ home_path }}/bootstrap'
+    cmd: '{{ home_path }}/bootstrap/bmctl create cluster -c {{ cluster_name }} &>
+      {{ home_path }}/bootstrap/cluster_create.log'
+    creates: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name
+      }}-kubeconfig'
+    executable: /bin/bash
+  environment:
+    GOOGLE_APPLICATION_CREDENTIALS: '{{ home_path }}/bootstrap/gcp_keys/bmctl.json'
+
+- name: Create .kube directory
+  ansible.builtin.file:
+    path: '{{ home_path }}/.kube'
+    state: directory
+    mode: '0755'
+    group: '{{ username }}'
+    owner: '{{ username }}'
+
+- name: Copy kubeconfig to ~/.kube
+  ansible.builtin.copy:
+    src: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name
+      }}-kubeconfig'
+    dest: '{{ home_path }}/.kube/config'
+    owner: '{{ username }}'
+    group: '{{ username }}'
+    mode: '0600'

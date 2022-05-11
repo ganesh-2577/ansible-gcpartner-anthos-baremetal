@@ -1,0 +1,62 @@
+# Need to install according to https://cloud.google.com/sdk/docs/install#rpm
+- name: Add Google Cloud SDK repository
+  yum_repository:
+    name: google-cloud-sdk
+    description: Google Cloud SDK
+    baseurl: https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-x86_64
+    gpgcheck: yes
+    gpgkey:
+    - https://packages.cloud.google.com/yum/doc/yum-key.gpg
+    - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+- name: Install Google Cloud SDK
+  ansible.builtin.yum:
+    update_cache: yes
+    pkg:
+    - google-cloud-sdk
+
+# Using https://docs.docker.com/engine/install/centos/
+- name: Remove old docker versions
+  ansible.builtin.yum:
+    name:
+    - docker
+    - docker-client
+    - docker-client-latest
+    - docker-common
+    - docker-latest
+    - docker-latest-logrotate
+    - docker-logrotate
+    - docker-engine
+    state: absent
+
+- name: Install Docker prerequisites
+  ansible.builtin.yum:
+    name:
+    - iptables
+    state: present
+
+- name: Add yum-utils
+  ansible.builtin.yum:
+    name:
+    - yum-utils
+    state: present
+
+- name: Add Docker-ce repo
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docer-ce.repo
+  become: yes
+
+- name: Install docker-ce/cli
+  ansible.builtin.yum:
+    name:
+    - docker-ce-{{ rhel_docker_ce_version }}
+    - docker-ce-cli-{{ rhel_docker_ce_cli_version }}
+    state: present
+
+- name: Add user to docker
+  ansible.builtin.user:
+    name: '{{ username }}'
+    groups:
+    - docker
+    append: yes

@@ -1,0 +1,75 @@
+gcrKeyPath: '{{ home_path }}/bootstrap/gcp_keys/gcr.json'
+sshPrivateKeyPath: '{{ home_path }}/.ssh/id_rsa'
+gkeConnectAgentServiceAccountKeyPath: '{{ home_path }}/bootstrap/gcp_keys/connect.json'
+gkeConnectRegisterServiceAccountKeyPath: '{{ home_path }}/bootstrap/gcp_keys/register.json'
+cloudOperationsServiceAccountKeyPath: '{{ home_path }}/bootstrap/gcp_keys/cloud-ops.json'
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cluster-{{ cluster_name }}
+---
+apiVersion: baremetal.cluster.gke.io/v1
+kind: Cluster
+metadata:
+  name: {{ cluster_name }}
+  namespace: cluster-{{ cluster_name }}
+spec:
+  type: hybrid
+  profile: default
+  anthosBareMetalVersion: {{ bmctl_version }}
+  gkeConnect:
+    projectID: {{ gcp_project_id }}
+  controlPlane:
+    nodePoolSpec:
+      nodes:
+{% for n in range(cp_node_count) %}
+      - address: {{ private_subnet | ansible.utils.nthhost(n+2) }}
+{% endfor %}
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 192.168.0.0/16
+    services:
+      cidrBlocks:
+      - 10.96.0.0/20
+  loadBalancer:
+    mode: bundled
+    ports:
+      controlPlaneLBPort: 443
+    vips:
+      controlPlaneVIP: {{ cp_vip }}
+      ingressVIP: {{ ingress_vip }}
+    addressPools:
+    - name: pool1
+      addresses:
+      - {{ lb_range_start }}-{{ ingress_vip }}
+  clusterOperations:
+    projectID: {{ gcp_project_id }}
+    location: us-central1
+  storage:
+    lvpNodeMounts:
+      path: /mnt/localpv-disk
+      storageClassName: local-disks
+    lvpShare:
+      path: /mnt/localpv-share
+      storageClassName: local-shared
+      numPVUnderSharedPath: 5
+  nodeConfig:
+    podDensity:
+      maxPodsPerNode: 250
+    containerRuntime: containerd
+  nodeAccess:
+    loginUser: {{ username }}
+---
+apiVersion: baremetal.cluster.gke.io/v1
+kind: NodePool
+metadata:
+  name: node-pool-1
+  namespace: cluster-{{ cluster_name }}
+spec:
+  clusterName: {{ cluster_name }}
+  nodes:
+{% for n in range(worker_node_count) %}
+  - address: {{ private_subnet | ansible.utils.nthhost(n+5) }}
+{% endfor %}

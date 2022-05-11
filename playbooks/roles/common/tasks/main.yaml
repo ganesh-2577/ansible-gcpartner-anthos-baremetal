@@ -1,0 +1,8 @@
+---
+- name: Import common RedHat tasks
+  import_tasks: rhel.yaml
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+
+- name: Import common Debian/ubuntu tasks
+  import_tasks: ubuntu.yaml
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
