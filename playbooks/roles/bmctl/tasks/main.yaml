@@ -2,7 +2,7 @@
   set_fact:
     cp_vip: "{{ private_subnet | ansible.utils.nthhost('-2') }}"
     ingress_vip: "{{ private_subnet | ansible.utils.nthhost('-3') }}"
-    lb_range_start: "{{ private_subnet | ansible.utils.nthhost('-14') }}"
+    lb_range_start: "{{ private_subnet | ansible.utils.nthhost('-7') }}"
 
 - name: bmctl key
   set_fact:

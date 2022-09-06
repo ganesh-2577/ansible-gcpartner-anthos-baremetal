@@ -3,7 +3,7 @@ This ansible playbook will fully automate the prerequisits and installation of G
 
 ## Assumptions
 ### IPs
-The smallest subnet that will work is a /27
+The smallest subnet that will work is a /28
 
 The IP addresses for this deployment follow these rules:
 * Control plane node IPs are are incremented starting with the second useable IP in the range

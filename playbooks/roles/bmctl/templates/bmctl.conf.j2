@@ -61,6 +61,7 @@ spec:
     containerRuntime: containerd
   nodeAccess:
     loginUser: {{ username }}
+{% if worker_node_count > 0 %}
 ---
 apiVersion: baremetal.cluster.gke.io/v1
 kind: NodePool
@@ -73,3 +74,4 @@ spec:
 {% for n in range(worker_node_count) %}
   - address: {{ private_subnet | ansible.utils.nthhost(n+5) }}
 {% endfor %}
+{% endif %}
