@@ -1,0 +1,24 @@
+---
+- name: Create Facts Dir
+  ansible.builtin.file:
+    path: /etc/ansible/facts.d
+    state: directory
+    mode: '0755'
+  listen: Create Removed Taint Fact
+
+- name: Check if remove_taint Fact exists
+  ansible.builtin.stat:
+    path: /etc/ansible/facts.d/remove_taint.fact
+  register: remove_taint
+  listen: Create Removed Taint Fact
+
+- name: Create remove_taint fact file
+  community.general.ini_file:
+    path: /etc/ansible/facts.d/remove_taint.fact
+    section: general
+    option: remove_taint
+    value: true
+  when:
+  - not remove_taint.stat.exists
+  listen: Create Removed Taint Fact
+

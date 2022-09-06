@@ -6,8 +6,7 @@
 
 - name: bmctl key
   set_fact:
-    bmctl_key: "{{ lookup('file', '{{ home_path }}/bootstrap/gcp_keys/bmctl.json')\
-      \ | from_json }}"
+    bmctl_key: "{{ lookup('file', '{{ home_path }}/bootstrap/gcp_keys/bmctl.json') | from_json }}"
 
 - name: Import RedHat tasks
   import_tasks: rhel.yaml
@@ -21,8 +20,7 @@
   ansible.builtin.shell:
     chdir: '{{ home_path }}/bootstrap'
     cmd: gcloud auth activate-service-account --key-file={{ home_path }}/bootstrap/gcp_keys/gcr.json
-      && gsutil cp gs://anthos-baremetal-release/bmctl/{{ bmctl_version }}/linux-amd64/bmctl
-      .
+      && gsutil cp gs://anthos-baremetal-release/bmctl/{{ bmctl_version }}/linux-amd64/bmctl .
     creates: '{{ home_path }}/bootstrap/bmctl'
 
 - name: Download kubectl
@@ -45,27 +43,22 @@
 - name: Create cluster config
   ansible.builtin.shell:
     chdir: '{{ home_path }}/bootstrap'
-    cmd: '{{ home_path }}/bootstrap/bmctl create config -c {{ cluster_name }} --project-id={{
-      gcp_project_id }}'
-    creates: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name
-      }}.yaml'
+    cmd: '{{ home_path }}/bootstrap/bmctl create config -c {{ cluster_name }} --project-id={{ gcp_project_id }}'
+    creates: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name }}.yaml'
   environment:
     GOOGLE_APPLICATION_CREDENTIALS: '{{ home_path }}/bootstrap/gcp_keys/bmctl.json'
 
 - name: Replace cluster config file
   template:
     src: bmctl.conf.j2
-    dest: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name
-      }}.yaml'
+    dest: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name }}.yaml'
     mode: '0644'
 
 - name: Create cluster
   ansible.builtin.shell:
     chdir: '{{ home_path }}/bootstrap'
-    cmd: '{{ home_path }}/bootstrap/bmctl create cluster -c {{ cluster_name }} &>
-      {{ home_path }}/bootstrap/cluster_create.log'
-    creates: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name
-      }}-kubeconfig'
+    cmd: '{{ home_path }}/bootstrap/bmctl create cluster -c {{ cluster_name }} &> {{ home_path }}/bootstrap/cluster_create.log'
+    creates: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name }}-kubeconfig'
     executable: /bin/bash
   environment:
     GOOGLE_APPLICATION_CREDENTIALS: '{{ home_path }}/bootstrap/gcp_keys/bmctl.json'
@@ -80,9 +73,27 @@
 
 - name: Copy kubeconfig to ~/.kube
   ansible.builtin.copy:
-    src: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name
-      }}-kubeconfig'
+    src: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name }}-kubeconfig'
     dest: '{{ home_path }}/.kube/config'
     owner: '{{ username }}'
     group: '{{ username }}'
     mode: '0600'
+
+- name: Install kubernetes into the ansible (virtualenv)
+  ansible.builtin.pip:
+    name: kubernetes
+    virtualenv: "{{ home_path }}/bootstrap/ansible"
+
+- name: Remove taints from masters if there are no worker nodes
+  kubernetes.core.k8s_json_patch:
+    validate_certs: false
+    kubeconfig: "{{ home_path }}/.kube/config"
+    kind: Node
+    name: "{{ item }}"
+    patch:
+    - op: remove
+      path: /spec/taints
+  with_sequence: start=1 end="{{ cp_node_count }}" format="{{ cluster_name }}-cp-%02x"
+  when: worker_node_count == 0
+  notify: Create Removed Taint Fact
+
