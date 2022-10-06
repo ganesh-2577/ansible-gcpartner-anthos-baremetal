@@ -60,8 +60,3 @@
     - docker
     append: yes
 
-- name: Download kubectl
-  get_url:
-    url: https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl
-    dest: /usr/local/bin/kubectl
-    mode: '0755'
