@@ -3,12 +3,15 @@
     cp_vip: "{{ private_subnet | ansible.utils.nthhost('-2') }}"
     ingress_vip: "{{ private_subnet | ansible.utils.nthhost('-3') }}"
     lb_range_start: "{{ private_subnet | ansible.utils.nthhost('-7') }}"
-  when:
-    cloud != "EQM"
+  when: cloud != "EQM"
 
 - name: bmctl key
   set_fact:
     bmctl_key: "{{ lookup('file', '{{ home_path }}/bootstrap/gcp_keys/bmctl.json') | from_json }}"
+
+- name: Gather Equinix Metal facts
+  import_tasks: eqm.yaml
+  when: cloud == "EQM"
 
 - name: Import RedHat tasks
   import_tasks: rhel.yaml

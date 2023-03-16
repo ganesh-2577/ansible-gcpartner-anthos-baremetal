@@ -28,18 +28,18 @@ spec:
     nodePoolSpec:
       nodes:
 {% if cloud != "EQM" %}
-  {% for n in range(cp_node_count) %}
+{% for n in range(cp_node_count) %}
       - address: {{ private_subnet | ansible.utils.nthhost(n+2) }}
-  {% endfor %}
+{% endfor %}
 {% else %}
-  {% for host in range(groups['cp_nodes'])
+{% for host in groups['cp_nodes']  %}
       - address: {{ host }}
-        providerID: equinixmetal://{{ hostvars[host][id] }}
-  {% endfor %}
+        providerID: equinixmetal://{{ hostvars[host]['id'] }}
+{% endfor %}
 {% endif %}
   clusterNetwork:
 {% if cloud == "EQM" %}
-  advancedNetworking: true
+    advancedNetworking: true
 {% endif %}
     pods:
       cidrBlocks:
@@ -49,7 +49,7 @@ spec:
       - 10.96.0.0/20
   loadBalancer:
     mode: bundled
-  {% if cloud == "EQM" %}
+{% if cloud == "EQM" %}
     type: bgp
     localASN: 65000
     bgpPeers:
@@ -57,7 +57,7 @@ spec:
       asn: 65530
     - ip: 169.254.255.2
       asn: 65530 
-  {% endif %}
+{% endif %}
     ports:
       controlPlaneLBPort: 443
     vips:
@@ -66,11 +66,11 @@ spec:
     addressPools:
     - name: pool1
       addresses:
-    {% if cloud != "EQM" %}
+{% if cloud != "EQM" %}
       - {{ lb_range_start }}-{{ ingress_vip }}
-    (% else %}
+{% else %}
       - {{ ingress_vip }}-{{ ingress_vip }}
-    {% endif %}
+{% endif %}
   clusterOperations:
     projectID: {{ gcp_project_id }}
     location: us-central1
@@ -98,16 +98,16 @@ metadata:
 spec:
   clusterName: {{ cluster_name }}
   nodes:
-  {% if cloud != "EQM" %}
-    {% for n in range(cp_node_count) %}
+{% if cloud != "EQM" %}
+{% for n in range(worker_node_count) %}
   - address: {{ private_subnet | ansible.utils.nthhost(n+5) }}
-    {% endfor %}
-  {% else %}
-    {% for host in range(groups['worker_nodes'])
+{% endfor %}
+{% else %}
+{% for host in groups['worker_nodes'] %}
   - address: {{ host }}
-    providerID: equinixmetal://{{ hostvars[host][id] }}
-    {% endfor %}
-  {% endif %}
+    providerID: equinixmetal://{{ hostvars[host]['id'] }}
+{% endfor %}
+{% endif %}
 {% endif %}
 {% if cloud == "EQM" %}
 ---
@@ -123,7 +123,7 @@ spec:
 apiVersion: networking.gke.io/v1
 kind: BGPPeer
 metadata:
-  name: EquinixMetal-ToR1
+  name: eqm-tor1
   namespace: cluster-{{ cluster_name }}
   labels:
     PEER_LABEL: "true"
@@ -136,7 +136,7 @@ spec:
 apiVersion: networking.gke.io/v1
 kind: BGPPeer
 metadata:
-  name: EquinixMetal-ToR2
+  name: eqm-tor2
   namespace: cluster-{{ cluster_name }}
   labels:
     PEER_LABEL: "true"
