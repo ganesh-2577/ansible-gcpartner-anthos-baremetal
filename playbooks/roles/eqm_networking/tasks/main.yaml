@@ -10,13 +10,9 @@
     private_ip: "{{ ansible_fact.eqm_metadata.network.addresses | ansible.builtin.json_query('[?!public].network')[0] | ansible.utils.nthhost('2') }}"
     cacheable: yes
 
+# TODO: This needs to be fixed!
 - name: Set BGP Floating IP
   ansible.builtin.set_fact: 
     bgp_floating_ip: "{{ ansible_fact.eqm_metadata.network.addresses | ansible.builtin.json_query('[?!public].network')[0] | ansible.utils.nthhost('1') }}"
     cacheable: yes
 
-- name: Replace Private IP in /etc/network/interfaces
-  ansible.builtin.shell:
-    cmd: "sed -i.bak 's/{{ ansible_fact.bgp_floating_ip }}/{{ ansible_fact.private_ip  }}/g' /etc/network/interfaces"
-    creates: /etc/network/interfaces.bak
-  notify: Bounce bond0:0
