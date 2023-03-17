@@ -1,0 +1,7 @@
+- name: Set Equinix Metal metadata as fact
+  ansible.builtin.set_fact:
+    eqm_metadata: "{{ lookup('ansible.builtin.url', 'https://metadata.platformequinix.com/metadata') | from_json }}"
+
+- name: Set private network subnet
+  ansible.builtin.set_fact: 
+    private_subnet: "{{ eqm_metadata.network.addresses | json_query('[?!public].network') }}/{{ eqm_metadata.network.addresses | json_query('[?!public].cidr') }}"
