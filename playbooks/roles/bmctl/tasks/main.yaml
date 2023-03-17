@@ -9,10 +9,6 @@
   set_fact:
     bmctl_key: "{{ lookup('file', '{{ home_path }}/bootstrap/gcp_keys/bmctl.json') | from_json }}"
 
-- name: Gather Equinix Metal facts
-  import_tasks: eqm.yaml
-  when: cloud == "EQM"
-
 - name: Import RedHat tasks
   import_tasks: rhel.yaml
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'

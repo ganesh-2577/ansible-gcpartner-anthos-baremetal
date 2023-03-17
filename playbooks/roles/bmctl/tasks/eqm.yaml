@@ -1,3 +1,0 @@
-- name: Set Equinix Metal metadata as fact
-  set_fact:
-    eqm_metadata: "{{ lookup('ansible.builtin.url', 'https://metadata.platformequinix.com/metadata') | from_json }}"

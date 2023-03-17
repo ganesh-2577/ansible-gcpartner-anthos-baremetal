@@ -118,7 +118,9 @@ metadata:
   namespace: cluster-{{ cluster_name }}
 spec:
   floatingIPs:
-  - {{ ingress_vip }}
+{% for host in groups['worker_nodes'] %}
+  - {{ hostvars[host]['private_subnet'] | ansible.utils.nthhost('3') }}
+{% endfor %}
 ---
 apiVersion: networking.gke.io/v1
 kind: BGPPeer
