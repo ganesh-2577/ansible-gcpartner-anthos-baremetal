@@ -33,6 +33,7 @@ spec:
 {% endfor %}
 {% else %}
 {% for host in groups['cp_nodes']  %}
+      # TODO: Update using private IP variable
       - address: {{ host }}
         providerID: equinixmetal://{{ hostvars[host]['id'] }}
 {% endfor %}
@@ -104,7 +105,8 @@ spec:
 {% endfor %}
 {% else %}
 {% for host in groups['worker_nodes'] %}
-  - address: {{ host }}
+  # TODO: Update using private IP variable
+   - {{ hostvars[host]['ansible_facts']['second_private_ip'] }}
     providerID: equinixmetal://{{ hostvars[host]['id'] }}
 {% endfor %}
 {% endif %}
@@ -120,7 +122,7 @@ spec:
   floatingIPs:
 # TODO: This needs to be fixed!!
 {% for host in groups['worker_nodes'] %}
-  - {{ hostvars[host]['ansible_facts']['private_net'] | ansible.utils.nthhost('3') }}
+  - {{ hostvars[host]['ansible_facts']['first_private_ip'] }}
 {% endfor %}
 ---
 apiVersion: networking.gke.io/v1

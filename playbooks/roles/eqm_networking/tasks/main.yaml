@@ -1,18 +1,7 @@
-# TODO: This needs to be fixed!
-- name: Set Equinix Metal metadata as fact
-  ansible.builtin.set_fact:
-    eqm_metadata: "{{ lookup('ansible.builtin.url', 'https://metadata.platformequinix.com/metadata') | ansible.builtin.from_json }}"
-    cacheable: yes
-
-# TODO: This needs to be fixed!
-- name: Set Private IP
+---
+- name: Set Second Private IP
   ansible.builtin.set_fact: 
-    private_ip: "{{ ansible_fact.eqm_metadata.network.addresses | ansible.builtin.json_query('[?!public].network')[0] | ansible.utils.nthhost('2') }}"
+    second_private_ip: "{{ ansible_fact.eqm_metadata.network.addresses | ansible.builtin.json_query('[?!public].network')[0] | ansible.utils.nthhost('2') }}"
     cacheable: yes
 
-# TODO: This needs to be fixed!
-- name: Set BGP Floating IP
-  ansible.builtin.set_fact: 
-    bgp_floating_ip: "{{ ansible_fact.eqm_metadata.network.addresses | ansible.builtin.json_query('[?!public].network')[0] | ansible.utils.nthhost('1') }}"
-    cacheable: yes
-
+# Need to write Sed...
