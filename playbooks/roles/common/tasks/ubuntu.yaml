@@ -8,4 +8,9 @@
 - name: Disable UFW
   community.general.ufw:
     state: disabled
-  when: ansible_distribution == 'Ubuntu'
+
+- name: Install Python3 jmespath Module
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg:
+    - python3-jmespath

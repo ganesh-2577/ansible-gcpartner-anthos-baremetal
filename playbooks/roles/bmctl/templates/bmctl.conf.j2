@@ -118,33 +118,43 @@ metadata:
   namespace: cluster-{{ cluster_name }}
 spec:
   floatingIPs:
+# TODO: This needs to be fixed!!
 {% for host in groups['worker_nodes'] %}
-  - {{ hostvars[host]['private_subnet'] | ansible.utils.nthhost('3') }}
+  - {{ hostvars[host]['ansible_facts']['private_net'] | ansible.utils.nthhost('3') }}
 {% endfor %}
-# ---
-# apiVersion: networking.gke.io/v1
-# kind: BGPPeer
-# metadata:
-#   name: eqm-tor1
-#   namespace: cluster-{{ cluster_name }}
-#   labels:
-#     PEER_LABEL: "true"
-# spec:
-#   localASN: 65000
-#   peerASN: 65530
-#   peerIP: 169.254.255.1
-#   sessions: 2
-# ---
-# apiVersion: networking.gke.io/v1
-# kind: BGPPeer
-# metadata:
-#   name: eqm-tor2
-#   namespace: cluster-{{ cluster_name }}
-#   labels:
-#     PEER_LABEL: "true"
-# spec:
-#   localASN: 65000
-#   peerASN: 65530
-#   peerIP: 169.254.255.2
-#   sessions: 2
+---
+apiVersion: networking.gke.io/v1
+kind: BGPLoadBalancer
+metadata:
+  name: default
+  namespace: cluster-{{ cluster_name }}
+spec:
+  peerSelector:
+    cluster.baremetal.gke.io/default-peer: "true"
+---
+apiVersion: networking.gke.io/v1
+kind: BGPPeer
+metadata:
+  name: eqm-tor1
+  namespace: cluster-{{ cluster_name }}
+  labels:
+    cluster.baremetal.gke.io/default-peer: "true"
+spec:
+  localASN: 65000
+  peerASN: 65530
+  peerIP: 169.254.255.1
+  sessions: {{ worker_node_count }}
+---
+apiVersion: networking.gke.io/v1
+kind: BGPPeer
+metadata:
+  name: eqm-tor2
+  namespace: cluster-{{ cluster_name }}
+  labels:
+    cluster.baremetal.gke.io/default-peer: "true"
+spec:
+  localASN: 65000
+  peerASN: 65530
+  peerIP: 169.254.255.2
+  sessions: {{ worker_node_count }}
 {% endif %}
