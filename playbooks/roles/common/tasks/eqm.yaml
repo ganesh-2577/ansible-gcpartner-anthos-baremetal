@@ -6,4 +6,4 @@
 # TODO: This needs to be fixed!
 - name: Set first private IP as a fact
   ansible.builtin.set_fact: 
-    first_private_ip: "{{ eqm_metadata.network.addresses | ansible.builtin.json_query('[?!public].network')[0] | ansible.utils.nthhost('1') }}"
+    first_private_ip: "{{ eqm_metadata.network.addresses | json_query('[?!public].network')[0] | ansible.utils.nthhost('1') }}"

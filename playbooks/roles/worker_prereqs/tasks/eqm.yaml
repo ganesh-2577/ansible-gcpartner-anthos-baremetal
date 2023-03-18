@@ -1,7 +1,7 @@
 ---
 - name: Set second private IP as a fact
   ansible.builtin.set_fact: 
-    second_private_ip: "{{ eqm_metadata.network.addresses | ansible.builtin.json_query('[?!public].network')[0] | ansible.utils.nthhost('2') }}"
+    second_private_ip: "{{ eqm_metadata.network.addresses | json_query('[?!public].network')[0] | ansible.utils.nthhost('2') }}"
 
 - name: Replace first private ip with second private ip in /etc/network/interfaces
   ansible.builtin.replace:
