@@ -1,7 +1,0 @@
----
-- name: Set Second Private IP
-  ansible.builtin.set_fact: 
-    second_private_ip: "{{ ansible_fact.eqm_metadata.network.addresses | ansible.builtin.json_query('[?!public].network')[0] | ansible.utils.nthhost('2') }}"
-    cacheable: yes
-
-# Need to write Sed...

@@ -1,4 +1,4 @@
 ---
 - hosts: worker_nodes
   roles:
-    - eqm_networking
+    - worker_prereqs

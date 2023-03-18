@@ -1,5 +1,4 @@
 ---
 - import_playbook: playbooks/common.yaml
-- import_playbook: playbooks/eqm_networking.yaml
-  when: cloud == "EQM"
+- import_playbook: playbooks/worker_prereqs.yaml
 - import_playbook: playbooks/bmctl.yaml

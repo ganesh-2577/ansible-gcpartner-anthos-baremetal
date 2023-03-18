@@ -1,4 +1,0 @@
----
-- name: Bounce bond0:0
-  ansible.builtin.shell:
-    cmd: "ifdown bond0:0; sleep 1; ifup bond0:0"
