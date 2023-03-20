@@ -26,36 +26,36 @@
     - google-cloud-sdk
 
 # docker install
-- name: Install Docker prerequisites
-  ansible.builtin.apt:
-    update_cache: yes
-    pkg:
-    - apt-transport-https
-    - ca-certificates
-    - gnupg
-    - curl
-    - software-properties-common
+# - name: Install Docker prerequisites
+#   ansible.builtin.apt:
+#     update_cache: yes
+#     pkg:
+#     - apt-transport-https
+#     - ca-certificates
+#     - gnupg
+#     - curl
+#     - software-properties-common
 
-- name: Add an Apt signing key, uses whichever key is at the URL
-  ansible.builtin.apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
+# - name: Add an Apt signing key, uses whichever key is at the URL
+#   ansible.builtin.apt_key:
+#     url: https://download.docker.com/linux/ubuntu/gpg
+#     state: present
 
-- name: Add docker repository into sources list
-  ansible.builtin.apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
-    state: present
+# - name: Add docker repository into sources list
+#   ansible.builtin.apt_repository:
+#     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+#     state: present
 
-- name: Install docker-ce and docker-cli
-  ansible.builtin.apt:
-    update_cache: yes
-    pkg:
-    - docker-ce={{ ubuntu_docker_ce_version }}
-    - docker-ce-cli={{ ubuntu_docker_ce_cli_version }}
+# - name: Install docker-ce and docker-cli
+#   ansible.builtin.apt:
+#     update_cache: yes
+#     pkg:
+#     - docker-ce={{ ubuntu_docker_ce_version }}
+#     - docker-ce-cli={{ ubuntu_docker_ce_cli_version }}
 
-- name: Add ubuntu user to docker
-  ansible.builtin.user:
-    name: '{{ username }}'
-    groups:
-    - docker
-    append: yes
+# - name: Add ubuntu user to docker
+#   ansible.builtin.user:
+#     name: '{{ username }}'
+#     groups:
+#     - docker
+#     append: yes
