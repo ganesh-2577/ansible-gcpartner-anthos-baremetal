@@ -1,4 +1,4 @@
-# Need to install according to https://cloud.google.com/sdk/docs/install#rpm
+---
 - name: Add Google Cloud SDK repository
   yum_repository:
     name: google-cloud-sdk
@@ -15,7 +15,6 @@
     pkg:
     - google-cloud-sdk
 
-# Using https://docs.docker.com/engine/install/centos/
 - name: Remove old docker versions
   ansible.builtin.yum:
     name:

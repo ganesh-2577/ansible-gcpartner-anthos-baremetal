@@ -1,0 +1,24 @@
+---
+- name: Create Equinix Metal kubernetes directory
+  ansible.builtin.file:
+    path: '{{ home_path }}/bootstrap/eqm_k8s'
+    state: directory
+    mode: '0755'
+    group: '{{ username }}'
+    owner: '{{ username }}'
+
+- name: Create Equinix Metal Cloud Control Manager secret file
+  template:
+    src: eqm_ccm_secret.yaml.j2
+    dest: '{{ home_path }}/bootstrap/eqm_k8s/eqm_ccm_secret.yaml'
+    mode: '0644'
+
+- name: Deployy Equinix Metal Cloud Control Manager secret
+  kubernetes.core.k8s:
+    state: present
+    src: '{{ home_path }}/bootstrap/eqm_k8s/eqm_ccm_secret.yaml'
+
+- name: Deployy Equinix Metal Cloud Control Manager
+  kubernetes.core.k8s:
+    state: present
+    src: "https://github.com/equinix/cloud-provider-equinix-metal/releases/download/{{ eqm_cloud_control_manager }}/deployment.yaml"

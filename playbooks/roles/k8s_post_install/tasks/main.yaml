@@ -1,0 +1,38 @@
+---
+- name: Create .kube directory
+  ansible.builtin.file:
+    path: '{{ home_path }}/.kube'
+    state: directory
+    mode: '0755'
+    group: '{{ username }}'
+    owner: '{{ username }}'
+
+- name: Copy kubeconfig to ~/.kube
+  ansible.builtin.copy:
+    src: '{{ home_path }}/bootstrap/bmctl-workspace/{{ cluster_name }}/{{ cluster_name }}-kubeconfig'
+    dest: '{{ home_path }}/.kube/config'
+    owner: '{{ username }}'
+    group: '{{ username }}'
+    mode: '0600'
+
+- name: Install kubernetes into the ansible (virtualenv)
+  ansible.builtin.pip:
+    name: kubernetes
+    virtualenv: "{{ home_path }}/bootstrap/ansible"
+
+- name: Remove taints from masters if there are no worker nodes
+  kubernetes.core.k8s_json_patch:
+    validate_certs: false
+    kubeconfig: "{{ home_path }}/.kube/config"
+    kind: Node
+    name: "{{ item }}"
+    patch:
+    - op: remove
+      path: /spec/taints
+  with_sequence: start=1 end="{{ cp_node_count }}" format="{{ cluster_name }}-cp-%02x"
+  when: worker_node_count == 0
+  notify: Create Removed Taint Fact
+
+- name: Import Equinx Metal common tasks
+  import_tasks: eqm.yaml
+  when: cloud == "EQM"

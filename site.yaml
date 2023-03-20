@@ -2,3 +2,4 @@
 - import_playbook: playbooks/common.yaml
 - import_playbook: playbooks/worker_prereqs.yaml
 - import_playbook: playbooks/bmctl.yaml
+- import_playbook: playbooks/k8s_post_install.yaml

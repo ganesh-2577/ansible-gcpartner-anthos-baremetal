@@ -1,35 +1,48 @@
+---
 - name: Fetch Equinix Metadata as JSON
   ansible.builtin.uri:
     url: https://metadata.platformequinix.com/metadata
     return_content: yes
   register: json_metadata
+
 - name: Set Equinix Metal metadata as a fact
   ansible.builtin.set_fact:
     eqm_metadata: "{{ json_metadata.json }}"
     cacheable: yes
+
 - name: Set Equinix Metal node id as a fact
   ansible.builtin.set_fact:
     eqm_id: "{{ eqm_metadata.id }}"
     cacheable: yes
+
 - name: Set private network id as a fact
   ansible.builtin.set_fact:
     private_network_id: "{{ eqm_metadata.network.addresses | json_query('[?!public].network | [0]') }}"
     cacheable: yes
+
 - name: Set private network cidr as a fact
   ansible.builtin.set_fact:
     private_network_cidr: "{{ eqm_metadata.network.addresses | json_query('[?!public].cidr | [0]') }}"
     cacheable: yes
+
 - name: Set private network as a fact
   ansible.builtin.set_fact:
     private_network: "{{ private_network_id }}/{{ private_network_cidr }}"
     cacheable: yes
+
 - name: Set first private IP as a fact when using a /31
   ansible.builtin.set_fact:
     first_private_ip: "{{ private_network | ansible.utils.nthhost('1') }}"
     cacheable: yes
   when: private_network_cidr | int == 31
+
 - name: Set first private IP as a fact when using a subnet larger than a /31
   ansible.builtin.set_fact:
     first_private_ip: "{{ private_network | ansible.utils.nthhost('2') }}"
     cacheable: yes
   when: private_network_cidr | int < 31
+
+- name: Set Equinix Metal Metro as a fact
+  ansible.builtin.set_fact:
+    first_private_ip: "{{ eqm_metadata.metro }}"
+    cacheable: yes

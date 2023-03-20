@@ -18,7 +18,7 @@
     section: general
     option: remove_taint
     value: true
+    mode: 0644
   when:
   - not remove_taint.stat.exists
   listen: Create Removed Taint Fact
-
