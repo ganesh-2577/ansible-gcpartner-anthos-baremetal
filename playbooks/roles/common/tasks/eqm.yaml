@@ -27,9 +27,9 @@
   ansible.builtin.set_fact:
     first_private_ip: "{{ private_network | ansible.utils.nthhost('1') }}"
     cacheable: yes
-  when: private_network_cidr == 31
+  when: private_network_cidr | int == 31
 - name: Set first private IP as a fact when using a subnet larger than a /31
   ansible.builtin.set_fact:
     first_private_ip: "{{ private_network | ansible.utils.nthhost('2') }}"
     cacheable: yes
-  when: private_network_cidr < 31
+  when: private_network_cidr | int < 31
