@@ -30,11 +30,11 @@
     dest: /usr/local/bin/kubectl
     mode: '0755'
 
-- name: Enable service docker
-  ansible.builtin.service:
-    name: docker
-    state: started
-    enabled: yes
+#- name: Enable service docker
+#  ansible.builtin.service:
+#    name: docker
+#    state: started
+#    enabled: yes
 
 - name: Change bmctl permissions
   ansible.builtin.file:

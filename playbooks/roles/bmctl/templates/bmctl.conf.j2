@@ -104,7 +104,7 @@ spec:
 {% endfor %}
 {% else %}
 {% for host in groups['worker_nodes'] %}
-  - {{ hostvars[host]['second_private_ip'] }}
+  - address: {{ hostvars[host]['second_private_ip'] }}
     providerID: equinixmetal://{{ hostvars[host]['eqm_id'] }}
 {% endfor %}
 {% endif %}
