@@ -9,8 +9,8 @@
   community.general.ufw:
     state: disabled
 
-- name: Install Python3 jmespath Module
-  ansible.builtin.apt:
-    update_cache: yes
-    pkg:
-    - python3-jmespath
+#- name: Install Python3 jmespath Module
+#  ansible.builtin.apt:
+#    update_cache: yes
+#    pkg:
+#    - python3-jmespath

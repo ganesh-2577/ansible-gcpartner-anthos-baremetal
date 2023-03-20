@@ -34,7 +34,7 @@ spec:
 {% else %}
 {% for host in groups['cp_nodes']  %}
       - address: {{ hostvars[host]['first_private_ip'] }}
-        providerID: equinixmetal://{{ hostvars[host]['id'] }}
+        providerID: equinixmetal://{{ hostvars[host]['eqm_id'] }}
 {% endfor %}
 {% endif %}
   clusterNetwork:
@@ -105,7 +105,7 @@ spec:
 {% else %}
 {% for host in groups['worker_nodes'] %}
    - {{ hostvars[host]['second_private_ip'] }}
-    providerID: equinixmetal://{{ hostvars[host]['id'] }}
+    providerID: equinixmetal://{{ hostvars[host]['eqm_id'] }}
 {% endfor %}
 {% endif %}
 {% endif %}

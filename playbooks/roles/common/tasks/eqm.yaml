@@ -7,6 +7,10 @@
   ansible.builtin.set_fact:
     eqm_metadata: "{{ json_metadata.json }}"
     cacheable: yes
+- name: Set Equinix Metal node id as a fact
+  ansible.builtin.set_fact:
+    eqm_id: "{{ eqm_metadata.id }}"
+    cacheable: yes
 - name: Set private network id as a fact
   ansible.builtin.set_fact:
     private_network_id: "{{ eqm_metadata.network.addresses | json_query('[?!public].network | [0]') }}"

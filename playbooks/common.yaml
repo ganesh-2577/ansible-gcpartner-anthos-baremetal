@@ -1,4 +1,6 @@
 ---
-- hosts: all
+- hosts:
+  - cp_nodes
+  - worker_nodes
   roles:
     - common
