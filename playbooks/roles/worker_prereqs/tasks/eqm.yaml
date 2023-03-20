@@ -1,7 +1,7 @@
 ---
 - name: Set first private IP as a fact
   ansible.builtin.set_fact:
-    second_private_ip: "{{ hostvars[inventory_hostname]['ansible_facts']['private_network'] | ansible.utils.nthhost('2') }}"
+    first_private_ip: "{{ private_network | ansible.utils.nthhost('1') }}"
     cacheable: yes
 
 - name: Replace first private ip with second private ip in /etc/network/interfaces
