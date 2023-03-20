@@ -13,12 +13,18 @@
     dest: '{{ home_path }}/bootstrap/eqm_k8s/eqm_ccm_secret.yaml'
     mode: '0644'
 
-- name: Deployy Equinix Metal Cloud Control Manager secret
+- name: Download Equinix Metal Cloud Control Manager deployment file
+  ansible.builtin.get_url:
+    url: https://github.com/equinix/cloud-provider-equinix-metal/releases/download/{{ eqm_cloud_control_manager_version }}/deployment.yaml
+    dest: '{{ home_path }}/bootstrap/eqm_k8s/eqm_ccm_deployment.yaml'
+    mode: '0440'
+
+- name: Deploy Equinix Metal Cloud Control Manager secret
   kubernetes.core.k8s:
     state: present
     src: '{{ home_path }}/bootstrap/eqm_k8s/eqm_ccm_secret.yaml'
 
-- name: Deployy Equinix Metal Cloud Control Manager
+- name: Deploy Equinix Metal Cloud Control Manager
   kubernetes.core.k8s:
     state: present
-    src: "https://github.com/equinix/cloud-provider-equinix-metal/releases/download/{{ eqm_cloud_control_manager }}/deployment.yaml"
+    src: '{{ home_path }}/bootstrap/eqm_k8s/eqm_ccm_deployment.yaml'
