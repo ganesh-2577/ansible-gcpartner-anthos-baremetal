@@ -44,5 +44,5 @@
 
 - name: Set Equinix Metal Metro as a fact
   ansible.builtin.set_fact:
-    first_private_ip: "{{ eqm_metadata.metro }}"
+    eqm_metro: "{{ eqm_metadata.metro }}"
     cacheable: yes
