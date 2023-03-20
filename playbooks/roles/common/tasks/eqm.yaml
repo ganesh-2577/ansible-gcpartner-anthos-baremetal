@@ -1,15 +1,20 @@
 - name: Set Equinix Metal metadata as a fact
   ansible.builtin.set_fact:
     eqm_metadata: "{{ lookup('ansible.builtin.url', 'https://metadata.platformequinix.com/metadata') | ansible.builtin.from_json }}"
+    cacheable: yes
 - name: Set private network id as a fact
   ansible.builtin.set_fact:
-    private_network_id: "{{ eqm_metadata.network.addresses | json_query('[?!public].network | [0]') }}"
+    private_network_id: "{{ hostvars[inventory_hostname]['ansible_facts']['eqm_metadata']['network']['addresses'] | json_query('[?!public].network | [0]') }}"
+    cacheable: yes
 - name: Set private network cidr as a fact
   ansible.builtin.set_fact:
-    private_network_cidr: "{{ eqm_metadata.network.addresses | json_query('[?!public].cidr | [0]') }}"
+    private_network_cidr: "{{ hostvars[inventory_hostname]['ansible_facts']['eqm_metadata']['network']['addresses'] | json_query('[?!public].cidr | [0]') }}"
+    cacheable: yes
 - name: Set private network as a fact
   ansible.builtin.set_fact:
-    private_network: "{{ private_network_id }}/{{ private_network_cidr }}" 
+    private_network: "{{ hostvars[inventory_hostname]['ansible_facts']['private_network_id'] }}/{{ hostvars[inventory_hostname]['ansible_facts']['private_network_cidr'] }}"
+    cacheable: yes
 - name: Set first private IP as a fact
   ansible.builtin.set_fact:
-    first_private_ip: "{{ private_network | ansible.utils.nthhost('1') }}"
+    first_private_ip: "{{ hostvars[inventory_hostname]['ansible_facts']['private_network'] | ansible.utils.nthhost('1') }}"
+    cacheable: yes

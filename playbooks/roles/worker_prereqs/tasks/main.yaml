@@ -1,3 +1,4 @@
+---
 - name: Import Equinx Metal worker prereqs
   import_tasks: eqm.yaml
   when: cloud == "EQM"
