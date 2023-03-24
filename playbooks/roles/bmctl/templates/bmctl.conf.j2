@@ -56,7 +56,15 @@ spec:
     - ip: 169.254.255.1
       asn: 65530
     - ip: 169.254.255.2
-      asn: 65530 
+      asn: 65530
+{% if worker_node_count > 0 %}
+  nodePoolSpec:
+    nodes:
+{% for n in range(worker_node_count) %}
+    - address: {{ private_subnet | ansible.utils.nthhost(n+5) }}
+      providerID: equinixmetal://{{ hostvars[host]['eqm_id'] }}
+{% endfor %}
+{% endif %}
 {% endif %}
     ports:
       controlPlaneLBPort: 443
@@ -88,7 +96,7 @@ spec:
     containerRuntime: containerd
   nodeAccess:
     loginUser: {{ username }}
-{% if worker_node_count > 0 %}
+{% if worker_node_count > 0 and cloud != "EQM" %}
 ---
 apiVersion: baremetal.cluster.gke.io/v1
 kind: NodePool
@@ -98,16 +106,10 @@ metadata:
 spec:
   clusterName: {{ cluster_name }}
   nodes:
-{% if cloud != "EQM" %}
+
 {% for n in range(worker_node_count) %}
   - address: {{ private_subnet | ansible.utils.nthhost(n+5) }}
 {% endfor %}
-{% else %}
-{% for host in groups['worker_nodes'] %}
-  - address: {{ hostvars[host]['second_private_ip'] }}
-    providerID: equinixmetal://{{ hostvars[host]['eqm_id'] }}
-{% endfor %}
-{% endif %}
 {% endif %}
 {% if cloud == "EQM" %}
 ---
