@@ -58,11 +58,11 @@ spec:
     - ip: 169.254.255.2
       asn: 65530
 {% if worker_node_count > 0 %}
-  nodePoolSpec:
-    nodes:
-{% for n in range(worker_node_count) %}
-    - address: {{ private_subnet | ansible.utils.nthhost(n+5) }}
-      providerID: equinixmetal://{{ hostvars[host]['eqm_id'] }}
+    nodePoolSpec:
+      nodes:
+{% for host in groups['worker_nodes'] %}
+      - address: {{ hostvars[host]['second_private_ip'] }}
+        providerID: equinixmetal://{{ hostvars[host]['eqm_id'] }}
 {% endfor %}
 {% endif %}
 {% endif %}
