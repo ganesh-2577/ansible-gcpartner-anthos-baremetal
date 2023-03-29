@@ -9,8 +9,8 @@
 - name: Set networking facts if the cloud IS EQM
   set_fact:
     cp_vip: "{{ load_balancer_subnet | ansible.utils.nthhost('-1') }}"
-    ingress_vip: "{{ load_balancer_subnet | ansible.utils.nthhost('2') }}"
-    lb_range_start: "{{ load_balancer_subnet | ansible.utils.nthhost('1') }}"
+    ingress_vip: "{{ load_balancer_subnet | ansible.utils.nthhost('-2') }}"
+    lb_range_start: "{{ load_balancer_subnet | ansible.utils.nthhost('0') }}"
   when: cloud == "EQM"
 
 - name: bmctl key
