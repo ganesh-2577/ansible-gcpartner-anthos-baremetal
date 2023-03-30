@@ -41,7 +41,7 @@ The required keys should also be named:
 The inventory file should look something like this:
 ```ini
 [all:vars]
-load_balancer_subnet=192.0.2.0/24
+private_subnet=192.0.2.0/24
 cluster_name=my-cluster
 username=ubuntu
 cp_node_count=3

@@ -29,7 +29,7 @@ spec:
       nodes:
 {% if cloud != "EQM" %}
 {% for n in range(cp_node_count) %}
-      - address: {{ load_balancer_subnet | ansible.utils.nthhost(n+2) }}
+      - address: {{ private_subnet | ansible.utils.nthhost(n+2) }}
 {% endfor %}
 {% else %}
 {% for host in groups['cp_nodes']  %}
@@ -74,7 +74,11 @@ spec:
     addressPools:
     - name: pool1
       addresses:
+{% if cloud != "EQM" %}
       - {{ lb_range_start }}-{{ ingress_vip }}
+{% else %}
+      - {{ ingress_vip }}-{{ ingress_vip }}
+{% endif %}
   clusterOperations:
     projectID: {{ gcp_project_id }}
     location: us-central1
@@ -104,7 +108,7 @@ spec:
   nodes:
 
 {% for n in range(worker_node_count) %}
-  - address: {{ load_balancer_subnet | ansible.utils.nthhost(n+5) }}
+  - address: {{ private_subnet | ansible.utils.nthhost(n+5) }}
 {% endfor %}
 {% endif %}
 {% if cloud == "EQM" %}
